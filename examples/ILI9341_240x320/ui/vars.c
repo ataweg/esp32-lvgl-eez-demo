@@ -1,7 +1,10 @@
 #include "vars.h"
+#include <stdio.h>
 
-char WIFI_SSID[50] = "W1_1047581318";
-char WIFI_PASS[50] = "SunceMojeMalo";
+#include "user_passwd.h"
+
+char WIFI_SSID[50] = USER_WIFI_SSID;
+char WIFI_PASS[50] = USER_WIFI_PASSWORD;
 char WIFI_IP[20] = "";
 char BB3_IP[20] = "192.168.100.80";
 char BB3_RESPONSE[500] = "";

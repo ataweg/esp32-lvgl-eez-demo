@@ -1,5 +1,9 @@
 # ESP32 lvgl eez-demo
 
+**Changes in this fork**
+- fix issues for ILI9341_240x320
+- add example for ESP32_2432s028 module
+
 ## Highly experimental branch
 
 https://github.com/lvgl/lvgl
@@ -52,9 +56,9 @@ https://github.com/eez-open/studio
     ./build.sh Heltec
     ./build.sh ILI9341_240x320
     ./build.sh TouchDown
-    
+
     etc.
-    
+
     ```
 
 - **Note 2** You must execute fullbuild.sh when you switch between display boards:
@@ -153,7 +157,7 @@ int app_main(void)
     lv_init();
 
     /* Initialize your hardware. */
-    
+
     /* hw_init(); */
 
     demo_create();
