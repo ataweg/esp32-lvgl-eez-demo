@@ -4,8 +4,8 @@ rm -rf ./main
 echo "Copy ./examples/Common to ./main"
 cp -r ./examples/Common ./main
 
-echo "Copy ./examples/ILI9341_240x320 to ./main"
-cp -rT ./examples/ILI9341_240x320 ./main
+echo "Copy ./examples/ESP32_2432s028 to ./main"
+cp -rT ./examples/ESP32_2432s028 ./main
 
-echo "Copy ./examples/ILI9341_240x320/sdkconfig to ./sdkconfig"
-cp ./examples/ILI9341_240x320/sdkconfig ./sdkconfig
+echo "Copy ./examples/ESP32_2432s028/sdkconfig to ./sdkconfig"
+cp ./examples/ESP32_2432s028/sdkconfig ./sdkconfig
