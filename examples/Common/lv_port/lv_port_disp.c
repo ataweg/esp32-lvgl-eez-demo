@@ -57,8 +57,8 @@
  *  STATIC PROTOTYPES
  **********************/
 static void disp_init(void);
-// static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p);
-// static void disp_clear(lv_disp_drv_t *disp_drv);
+// static void disp_flush(lv_display_t *disp_drv, const lv_area_t *area, lv_color_t *color_p);
+// static void disp_clear(lv_display_t *disp_drv);
 
 /**********************
  *  STATIC VARIABLES
@@ -145,7 +145,7 @@ void lv_port_disp_init(void)
     /*-----------------------------------
      * Register the display in LVGL
      *----------------------------------*/
-    static lv_disp_drv_t disp_drv;
+    static lv_display_t disp_drv;
     lv_disp_drv_init(&disp_drv);
 
     /*Used to copy the buffer's content to the display*/

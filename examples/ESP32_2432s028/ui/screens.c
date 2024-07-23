@@ -280,7 +280,8 @@ void create_screen_main_page() {
             {
                 lv_obj_t *parent_obj = obj;
                 {
-                    lv_obj_t *obj = lv_spinner_create(parent_obj, 1000, 60);
+                    lv_obj_t *obj = lv_spinner_create(parent_obj);
+                    lv_spinner_set_anim_params(obj, 1000, 60);
                     objects.obj0 = obj;
                     lv_obj_set_pos(obj, 170, 170);
                     lv_obj_set_size(obj, 50, 50);
@@ -357,7 +358,7 @@ void create_screen_main_page() {
                     lv_obj_t *obj = lv_label_create(parent_obj);
                     lv_obj_set_pos(obj, 100, 54);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                    lv_label_set_text(obj, "LVGL: 8.3");
+                    lv_label_set_text(obj, "LVGL: 9.x");
                     lv_obj_set_style_text_font(obj, &ui_font_montserrat_semi_bold_20, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
                 {

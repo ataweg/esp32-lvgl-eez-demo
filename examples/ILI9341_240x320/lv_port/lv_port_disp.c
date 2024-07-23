@@ -39,6 +39,7 @@
 #define MY_DISP_HOR_RES 320 /* 240 */
 #define MY_DISP_VER_RES 240 /* 320 */
 
+#define LINES_TO_DRAW               24
 
 #define DISP_BUF_SIZE_CUSTOM (MY_DISP_HOR_RES * 16) /* 10240 */
 //#define DISP_BUF_SIZE_CUSTOM (128000 /* 17000 */)
@@ -52,8 +53,8 @@
  *  STATIC PROTOTYPES
  **********************/
 static void disp_init(void);
-// static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p);
-// static void disp_clear(lv_disp_drv_t *disp_drv);
+// static void disp_flush(lv_display_t *disp_drv, const lv_area_t *area, lv_color_t *color_p);
+// static void disp_clear(lv_display_t *disp_drv);
 
 /**********************
  *  STATIC VARIABLES
@@ -74,7 +75,7 @@ void lv_port_disp_init(void)
     /*-------------------------
      * Initialize your display
      * -----------------------*/
-    disp_init();
+    disp_init();  // empty function, nothing impelemented
 
     /*-----------------------------
      * Create a buffer for drawing
@@ -101,56 +102,50 @@ void lv_port_disp_init(void)
      */
 
      ESP_LOGI(TAG, "MALLOC_CAP_SPIRAM SIZE: %d", heap_caps_get_total_size(MALLOC_CAP_DMA));
-     ESP_LOGI(TAG, "DISP_BUF_SIZE_CUSTOM SIZE: %d", 2 * (DISP_BUF_SIZE_CUSTOM * sizeof(lv_color_t)));
+     ESP_LOGI(TAG, "DISP_BUF_SIZE_CUSTOM SIZE: %d", 2 * (DISP_BUF_SIZE_CUSTOM * ( ( LV_COLOR_DEPTH + 7 ) / 8 )));
 
-    /* static lv_color_t * */
-    buf1 = heap_caps_malloc(DISP_BUF_SIZE_CUSTOM * sizeof(lv_color_t),
-                            MALLOC_CAP_DMA | MALLOC_CAP_8BIT /* MALLOC_CAP_DMA */);
-    assert(buf1 != NULL);
+   // allocate memory for display buffers
+   uint32_t buf_size_bytes = DISP_BUF_SIZE_CUSTOM * ( ( LV_COLOR_DEPTH + 7 ) / 8 );
+   ESP_LOGI( TAG, "Display buffer size: %d", buf_size_bytes );
 
-    /* Use double buffered when not working with monochrome displays */
-#ifndef CONFIG_LV_TFT_DISPLAY_MONOCHROME
-    /* static lv_color_t * */
-    buf2 = heap_caps_malloc(DISP_BUF_SIZE_CUSTOM * sizeof(lv_color_t),
-                            MALLOC_CAP_DMA | MALLOC_CAP_8BIT /* MALLOC_CAP_DMA */);
-    assert(buf2 != NULL);
+#if USE_STATIC_DISPLAY_BUFFER
+   // !!! this will result in a crash
+   uint8_t disp_buf1[ buf_size_bytes ];
+ #if USE_DOUBLE_DISPLAY_BUFFER
+   uint8_t disp_buf2[ buf_size_bytes ];
+ #else
+   uint8_t * disp_buf2 = NULL;
+ #endif
 #else
-    static lv_color_t *buf2 = NULL;
+   uint8_t* disp_buf1 = ( uint8_t* )heap_caps_malloc( buf_size_bytes, MALLOC_CAP_DMA );
+   LV_ASSERT_MSG( disp_buf1 != NULL, "Can't allocate display buffer 1" );
+ #if USE_DOUBLE_DISPLAY_BUFFER
+   // Use double buffered
+   uint8_t* disp_buf2 = ( uint8_t* )heap_caps_malloc( buf_size_bytes, MALLOC_CAP_DMA );
+   LV_ASSERT_MSG( disp_buf2 != NULL, "Can't allocate display buffer 2" );
+ #else
+   uint8_t* disp_buf2 = NULL;
+ #endif
 #endif
+    /* Initialize the working buffer depending on the selected display.
+     * NOTE: buf2 == NULL when using monochrome displays. */
 
-    static lv_disp_draw_buf_t draw_buf_dsc_2;
+    /*-----------------------------------
+     * Create the display in LVGL
+     *----------------------------------*/
+    /*Set also the resolution of the display*/
+   lv_display_t * disp = lv_display_create( MY_DISP_HOR_RES, MY_DISP_VER_RES );
+   lv_display_set_buffers( disp, (void *)disp_buf1, (void *)disp_buf2, buf_size_bytes, LV_DISPLAY_RENDER_MODE_PARTIAL );
 
-    uint32_t size_in_px = DISP_BUF_SIZE_CUSTOM;
+    uint32_t size_in_px = buf_size_bytes;
 
 #if defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_IL3820 || defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_JD79653A || defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_UC8151D || defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_SSD1306
     /* Actual size in pixels, not bytes. */
     size_in_px *= 8;
 #endif
 
-    /* Initialize the working buffer depending on the selected display.
-     * NOTE: buf2 == NULL when using monochrome displays. */
-    lv_disp_draw_buf_init(&draw_buf_dsc_2, buf1, buf2, size_in_px /* DISP_BUF_SIZE_CUSTOM */);
-
-    // /* Example for 3) also set disp_drv.full_refresh = 1 below*/
-    // static lv_disp_draw_buf_t draw_buf_dsc_3;
-    // static lv_color_t buf_3_1[MY_DISP_HOR_RES * MY_DISP_VER_RES];            /*A screen sized buffer*/
-    // static lv_color_t buf_3_2[MY_DISP_HOR_RES * MY_DISP_VER_RES];            /*Another screen sized buffer*/
-    // lv_disp_draw_buf_init(&draw_buf_dsc_3, buf_3_1, buf_3_2, MY_DISP_VER_RES * LV_VER_RES);   /*Initialize the display buffer*/
-
-    /*-----------------------------------
-     * Register the display in LVGL
-     *----------------------------------*/
-    static lv_disp_drv_t disp_drv;
-    lv_disp_drv_init(&disp_drv);
-
     /*Used to copy the buffer's content to the display*/
-    disp_drv.flush_cb = disp_driver_flush;
-
-    /*Set the resolution of the display*/
-    disp_drv.hor_res = MY_DISP_HOR_RES;
-    disp_drv.ver_res = MY_DISP_VER_RES;
-
-    // disp_drv.full_refresh = 1;
+   lv_display_set_flush_cb( disp, disp_driver_flush );
 
     /* When using a monochrome display we need to register the callbacks:
      * - rounder_cb
@@ -159,10 +154,6 @@ void lv_port_disp_init(void)
     disp_drv.rounder_cb = disp_driver_rounder;
     disp_drv.set_px_cb  = disp_driver_set_px;
 #endif
-
-    disp_drv.draw_buf = &draw_buf_dsc_2;
-    /*Finally register the driver*/
-    lv_disp_drv_register(&disp_drv);
 
     ESP_LOGI(TAG, "Display hor size: %d, ver size: %d", LV_HOR_RES, LV_VER_RES);
     ESP_LOGI(TAG, "Display buffer size: %d", DISP_BUF_SIZE_CUSTOM);

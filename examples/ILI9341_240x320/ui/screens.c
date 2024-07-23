@@ -282,7 +282,8 @@ void create_screen_main_page() {
             {
                 lv_obj_t *parent_obj = obj;
                 {
-                    lv_obj_t *obj = lv_spinner_create(parent_obj, 1000, 60);
+                    lv_obj_t *obj = lv_spinner_create(parent_obj);
+                    lv_spinner_set_anim_params(obj, 1000, 60);
                     objects.obj0 = obj;
                     lv_obj_set_pos(obj, 170, 170);
                     lv_obj_set_size(obj, 50, 50);

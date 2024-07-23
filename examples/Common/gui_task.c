@@ -76,7 +76,7 @@ void gui_task_init(void)
     /* If you want to use a task to create the graphic, you NEED to create a Pinned task
      * Otherwise there can be problem such as memory corruption and so on.
      * NOTE: When not using Wi-Fi nor Bluetooth you can pin the guiTask to core 0 */
-    /* TODO: ！！！史前巨坑！！！优先级要改大点 */
+    /* TODO: !!! Prehistoric giant pit!!! The priority should be raised */
     xTaskCreatePinnedToCore(guiTask, "gui", 4096 * 2, NULL, 10, NULL, 1);
 }
 
@@ -91,6 +91,7 @@ SemaphoreHandle_t xGuiSemaphore;
 
 static void guiTask(void *pvParameter)
 {
+   ESP_LOGI( TAG, "Start GUI Task" );
     (void)pvParameter;
     xGuiSemaphore = xSemaphoreCreateMutex();
 
@@ -99,18 +100,22 @@ static void guiTask(void *pvParameter)
     // /* Initialize SPI or I2C bus used by the drivers */
     // lvgl_driver_init();
 
-    /* 显示初始化 */
+    /* Display initialization */
+    ESP_LOGI( TAG, "Display initialization" );
     lv_port_disp_init();
 
     /* Initialize SPI or I2C bus used by the drivers */
-    /**
-     * 由于设置显示器的分辨率不再是全局定义的，
-     * 所以lvgl驱动初始化必须要在指定lvgl分辨率之后进行,
-     * 因为其中包括设置spi最大传输大小，这里需要屏幕分辨率参数
+    /*
+     * Since setting the display resolution is no longer globally defined,
+     * LVGL driver initialization must be performed after specifying the LVGL resolution,
+     * Because it includes setting the maximum SPI transfer size, the screen resolution parameter is required here
      */
+
+    ESP_LOGI( TAG, "LVGL Driver initialization" );
     lvgl_driver_init();
 
-    /* 输入设备初始化 */
+    /* Input device initialization */
+    ESP_LOGI( TAG, "Input device initialization" );
     lv_port_indev_init();
 
     /* Create and start a periodic timer interrupt to call lv_tick_inc */
@@ -122,6 +127,7 @@ static void guiTask(void *pvParameter)
     ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
 
     /* Create the demo application */
+    ESP_LOGI( TAG, "Create the demo application" );
     ui_init();
     while (1) {
         /* Delay 1 tick (assumes FreeRTOS tick is 10ms */

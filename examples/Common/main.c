@@ -50,12 +50,12 @@ static void example_task1(void *pvParameters)
  **********************/
 void app_main()
 {
-    xTaskCreate(example_task1,             /* 指向需要创建的任务 */
-                "example_task1",           /* 任务的文本名字，用于调试 */
-                1024 * 8,                  /* 栈深，单位字节 */
-                NULL,                      /* 传入任务的参数 */
-                configMAX_PRIORITIES - 24, /* 任务优先级 */
-                NULL                       /* 控制该任务的句柄，注意要'&' */
+    xTaskCreate(example_task1,             /* Point to the task to be created */
+                "example_task1",           /* Task text name, used for debugging */
+                1024 * 8,                  /* Stack depth, in bytes */
+                NULL,                      /* Parameters passed to the task */
+                configMAX_PRIORITIES - 24, /* Task priority */
+                NULL                       /* Handle to control the task, note the '&' */
     );
     gui_task_init();
 }

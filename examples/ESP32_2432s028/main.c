@@ -239,7 +239,7 @@ static void tcp_client_task(void *pvParameters)
                 CH2_UPDATE = false;
                 if(CH1_POWER_ON){err = send(sock, CH1_ON, strlen(CH1_ON), 0);}
                 else{err = send(sock, CH1_OFF, strlen(CH1_OFF), 0);}
-                vTaskDelay(1 / portTICK_RATE_MS);
+                vTaskDelay(1 / portTICK_PERIOD_MS);
                 err = send(sock, CH_ALL_STAT, strlen(CH_ALL_STAT), 0);
               }
               else if(CH2_UPDATE){
@@ -250,7 +250,7 @@ static void tcp_client_task(void *pvParameters)
                 CH2_UPDATE = false;
                 if(CH2_POWER_ON){err = send(sock, CH2_ON, strlen(CH2_ON), 0);}
                 else{err = send(sock, CH2_OFF, strlen(CH2_OFF), 0);}
-                vTaskDelay(1 / portTICK_RATE_MS);
+                vTaskDelay(1 / portTICK_PERIOD_MS);
                 err = send(sock, CH_ALL_STAT, strlen(CH_ALL_STAT), 0);
               }
               // Get status of BB3
@@ -271,7 +271,7 @@ static void tcp_client_task(void *pvParameters)
                   CH2_UPDATE = false;
                 break;
             }
-            vTaskDelay(1 / portTICK_RATE_MS);
+            vTaskDelay(1 / portTICK_PERIOD_MS);
             int len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
             // Error occurred during receiving
             if (len < 0) {
@@ -298,7 +298,7 @@ static void tcp_client_task(void *pvParameters)
                 break;
             }
             //}
-            vTaskDelay(100 / portTICK_RATE_MS);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
         }
       }
         if (sock != -1) {
@@ -318,7 +318,7 @@ static void tcp_client_task(void *pvParameters)
             close(sock);
     }
 }
-vTaskDelay(500 / portTICK_RATE_MS);
+vTaskDelay(500 / portTICK_PERIOD_MS);
 }
 }
 
@@ -327,7 +327,7 @@ void OnConnected(void *para)
 {
   while (true)
   {
-    if (xSemaphoreTake(connectionSemaphore, 10000 / portTICK_RATE_MS))
+    if (xSemaphoreTake(connectionSemaphore, 10000 / portTICK_PERIOD_MS))
     {
       ESP_LOGI(TAG, "connected");
       WIFI_CONNECTED = true;
@@ -348,7 +348,7 @@ void OnConnected(void *para)
       for (int i = 0; i < 10000; i++)
       {
         ESP_LOGE(TAG, "...%d", i);
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
       }
       esp_restart(); // si no hay conexion reiniciar el chip.
     }
