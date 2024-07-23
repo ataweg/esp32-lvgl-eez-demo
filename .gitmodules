@@ -1,7 +1,7 @@
 [submodule "components/lvgl_esp32_drivers"]
 	path = components/lvgl_esp32_drivers
 	url = https://github.com/ataweg/lvgl_esp32_drivers.git
-	branch = esp32-lvgl-eez-demo
+	branch = esp32-lvgl-eez-demo_LVGL_9x
 [submodule "components/lvgl"]
 	path = components/lvgl
 	url = https://github.com/lvgl/lvgl.git
